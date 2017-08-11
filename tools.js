@@ -36,8 +36,8 @@ const numToUint8Array = num => {
   return typedArray;
 };
 
-const addMetadata = (chunks, { file_id, call_type }) => {
-  const id = numToUint8Array(file_id);
+const addMetadata = (chunks, { upload_id, call_type }) => {
+  const id = numToUint8Array(upload_id);
   const type = numToUint8Array(call_type);
   return chunks.map(data => {
     const size = numToUint8Array(data.length);
