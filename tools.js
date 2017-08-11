@@ -1,4 +1,4 @@
-const CHUNK_SIZE = process.env.CHUNK_SIZE || 3; // 16 KB chunk size
+const CHUNK_SIZE = process.env.CHUNK_SIZE || 16384; // 16 KB chunk size
 const MAX_ALLOWED_ID = 4294967296;
 const WORD_SIZE = 4;
 

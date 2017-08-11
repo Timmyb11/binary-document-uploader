@@ -4,7 +4,7 @@ const WebSocket = require("ws");
 const { generateBinary } = require("./tools");
 const { sendAuthReq, uploadBinary, getFile } = require('./client');
 
-const FILE_SIZE = process.env.FILE_SIZE || 10;
+const FILE_SIZE = process.env.FILE_SIZE || 1000000;
 
 const ws = new WebSocket("ws://localhost:8080");
 
