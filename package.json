@@ -1,0 +1,16 @@
+{
+  "name": "websocket-stream",
+  "version": "1.0.0",
+  "description": "",
+  "main": "stream.js",
+  "scripts": {
+    "test": "node stream.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "assert": "^1.4.1",
+    "base64-js": "^1.2.1",
+    "ws": "^3.1.0"
+  }
+}
