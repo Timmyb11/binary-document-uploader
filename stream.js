@@ -2,7 +2,7 @@
 
 const WebSocket = require("ws");
 const { generateBinary } = require("./tools");
-const { sendAuthReq, uploadBinary, getFile } = require("./client");
+const { sendAuthReq, uploadBinary } = require("./client");
 const crypto = require("crypto");
 const shasum = crypto.createHash("sha1");
 
@@ -14,7 +14,7 @@ const binaryData = generateBinary(FILE_SIZE);
 
 shasum.update(binaryData);
 
-const checksum = shasum.digest('hex');
+const checksum = shasum.digest("hex");
 
 function onMessage(data) {
   console.log(data);
@@ -24,20 +24,20 @@ function onMessage(data) {
     return console.log(json.error);
   }
 
-  const metadata = getFile(json);
+  const { document_upload: metadata } = json;
 
   const { checksum: receivedChecksum, size } = metadata;
   if (receivedChecksum) {
-      if (receivedChecksum === checksum) {
-          console.log('Checksum matches');
-      } else {
-          console.log('Checksum does not match');
-      }
-      if (size === FILE_SIZE) {
-          console.log('Size matches');
-      } else {
-          console.log('Size does not match');
-      }
+    if (receivedChecksum === checksum) {
+      console.log("Checksum matches");
+    } else {
+      console.log("Checksum does not match");
+    }
+    if (size === FILE_SIZE) {
+      console.log("Size matches");
+    } else {
+      console.log("Size does not match");
+    }
     return;
   }
   uploadBinary(ws, metadata, binaryData);
