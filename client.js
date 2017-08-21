@@ -12,7 +12,7 @@ const sendAuthReq = ws => {
     req_id: 10,
     document_type: "passport",
     document_format: "JPEG",
-    expiry_date: "1345678",
+    expiration_date: "1345678",
     document_id: "1234567"
   });
 
