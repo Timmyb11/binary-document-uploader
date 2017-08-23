@@ -1,16 +1,64 @@
 {
   "name": "websocket-stream",
   "version": "1.0.0",
-  "description": "",
+  "description": "Stream files to binary.com platform",
   "main": "stream.js",
   "scripts": {
-    "test": "node stream.js"
+    "test": "jest",
+    "precommit": "lint-staged"
   },
-  "author": "",
+  "babel": {
+    "babelrc": false,
+    "env": {
+      "production": {
+        "presets": [
+          [
+            "env",
+            {
+              "targets": {
+                "browsers": [
+                  "> 1%"
+                ]
+              }
+            }
+          ]
+        ]
+      },
+      "node": {
+        "presets": [
+          [
+            "env",
+            {
+              "targets": {
+                "node": "4"
+              }
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier-eslint --write",
+      "git add"
+    ]
+  },
+  "author": "Amin Marashi <marashisamin at gmail>",
   "license": "ISC",
   "devDependencies": {
-    "assert": "^1.4.1",
+    "babel-preset-env": "^1.6.0",
     "base64-js": "^1.2.1",
+    "eslint": "^4.5.0",
+    "eslint-config-airbnb-base": "^11.3.2",
+    "eslint-config-binary": "^1.0.2",
+    "eslint-config-prettier": "^2.3.0",
+    "eslint-plugin-import": "^2.7.0",
+    "jest": "^20.0.4",
+    "lint-staged": "^4.0.3",
+    "prettier-eslint-cli": "^4.2.1"
+  },
+  "dependencies": {
     "ws": "^3.1.0"
   }
 }
