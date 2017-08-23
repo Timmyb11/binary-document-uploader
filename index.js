@@ -8,7 +8,7 @@ const shasum = crypto.createHash("sha1");
 
 const FILE_SIZE = Number(process.env.FILE_SIZE || 1000000);
 
-const ws = new WebSocket("ws://localhost:8080");
+const ws = new WebSocket(process.env.ENDPOINT || "ws://localhost:8080");
 
 const binaryData = generateBinary(FILE_SIZE);
 
