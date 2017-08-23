@@ -3,4 +3,7 @@
   "extends": [
     "binary",
   ],
+  "rules": {
+    "import/no-extraneous-dependencies": 0,
+  },
 }

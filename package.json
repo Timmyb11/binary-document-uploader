@@ -4,39 +4,10 @@
   "description": "Stream files to binary.com platform",
   "main": "stream.js",
   "scripts": {
-    "test": "jest",
+    "test": "eslint src && jest",
+    "build": "webpack",
+    "prepublishOnly": "npm run build",
     "precommit": "lint-staged"
-  },
-  "babel": {
-    "babelrc": false,
-    "env": {
-      "production": {
-        "presets": [
-          [
-            "env",
-            {
-              "targets": {
-                "browsers": [
-                  "> 1%"
-                ]
-              }
-            }
-          ]
-        ]
-      },
-      "node": {
-        "presets": [
-          [
-            "env",
-            {
-              "targets": {
-                "node": "4"
-              }
-            }
-          ]
-        ]
-      }
-    }
   },
   "lint-staged": {
     "*.js": [
@@ -47,6 +18,8 @@
   "author": "Amin Marashi <marashisamin at gmail>",
   "license": "ISC",
   "devDependencies": {
+    "babel-loader": "^7.1.2",
+    "babel-minify-webpack-plugin": "^0.2.0",
     "babel-preset-env": "^1.6.0",
     "base64-js": "^1.2.1",
     "eslint": "^4.5.0",
@@ -56,9 +29,8 @@
     "eslint-plugin-import": "^2.7.0",
     "jest": "^20.0.4",
     "lint-staged": "^4.0.3",
-    "prettier-eslint-cli": "^4.2.1"
-  },
-  "dependencies": {
-    "ws": "^3.1.0"
+    "prettier-eslint-cli": "^4.2.1",
+    "sha1": "^1.1.1",
+    "webpack": "^3.5.5"
   }
 }
