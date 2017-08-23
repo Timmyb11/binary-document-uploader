@@ -1,19 +1,18 @@
-# websocket-streaming
-Show case of streaming binary data through websocket
+# binary-websocket-upload
+Uploading files through websocket to binary.com platform
+
+# Installation
+
+```
+npm install binary-websocket-upload
+```
 
 # Usage
 
 ```
-git clone https://github.com/aminmarashi/websocket-streaming.git
-cd websocket-streaming
-npm install
-perl server.pl
-./stream.js
-```
+import upload from 'binary-websocket-upload';
 
-# Throughput Experiment
-
-```
-perl server.pl
-FILE_SIZE=10000 CHUNK_SIZE=1024 ./stream.js
+upload(file)
+	.then(() => console.log('Upload successful!'))
+	.catch(e => console.log(error));
 ```
