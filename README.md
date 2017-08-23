@@ -21,44 +21,44 @@ upload(file, config)
 
 File information and payload to send
 
-## file.filename
+## `file.filename`
 
 Filename
 
-## file.buffer
+## `file.buffer`
 
 Array buffer containing the file to upload
 
-## file.documentType
+## `file.documentType`
 
 Document type
 
-## file.documentId
+## `file.documentId`
 
 Document id
 
-## file.documentFormat
+## `file.documentFormat`
 
 Document format
 
-## file.expirationDate
+## `file.expirationDate`
 
 Expiration date
 
 # config (optional)
 
-## config.endpoint
+## `config.endpoint`
 
 Default: `'wss://ws.binaryws.com/websockets/v3?app_id=1'`
 
-## config.connection
+## `config.connection`
 
 Default: instance of WebSocket with `'wss://ws.binaryws.com/websockets/v3?app_id=1'`
 
-## config.chunkSize
+## `config.chunkSize`
 
 Default: `16384` (16 KB)
 
-## config.wordSize
+## `config.wordSize`
 
 Default: `4`
