@@ -12,7 +12,41 @@ npm install binary-websocket-upload
 ```
 import upload from 'binary-websocket-upload';
 
-upload(file)
+upload(file, config)
 	.then(() => console.log('Upload successful!'))
 	.catch(e => console.log(error));
 ```
+
+# file (object)
+
+File information and payload to send
+
+## file.buffer
+
+Array buffer containing the file to upload
+
+## file.documentType
+
+Document type
+
+## file.documentId
+
+Document id
+
+## file.documentFormat
+
+Document format
+
+## file.expirationDate
+
+Expiration date
+
+# config (optional)
+
+## config.endpoint
+
+Default: `'wss://ws.binaryws.com/websockets/v3?app_id=1'`
+
+## config.chunkSize
+
+Default: ``

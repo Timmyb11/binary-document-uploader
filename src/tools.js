@@ -1,11 +1,8 @@
-const CHUNK_SIZE = Number(process.env.CHUNK_SIZE || 16384); // 16 KB chunk size
-const WORD_SIZE = 4;
-
-export const generateChunks = binary =>
+export const generateChunks = (binary, { chunkSize = 16384 /* 16KB */ }) =>
     Array.from(binary)
         .reduce((acc, item, i) => {
             const newAcc = [...acc];
-            if (i % CHUNK_SIZE === 0) {
+            if (i % chunkSize === 0) {
                 newAcc.push([item]);
                 return newAcc;
             }
@@ -13,21 +10,14 @@ export const generateChunks = binary =>
             return newAcc;
         }, [])
         .map(b => new Uint8Array(b))
-        // indication of EOF
         .concat(new Uint8Array([]));
 
-const numToUint8Array = num => {
-    const typedArray = new Uint8Array(WORD_SIZE);
-    const dv = new DataView(typedArray.buffer);
-    dv.setUint32(0, num);
-    return typedArray;
-};
+export function addMetadata(chunks, { uploadId, callType, wordSize = 4 }) {
+    const id = numToUint8Array(uploadId, wordSize);
+    const type = numToUint8Array(callType, wordSize);
 
-export const addMetadata = (chunks, { upload_id, call_type }) => {
-    const id = numToUint8Array(upload_id);
-    const type = numToUint8Array(call_type);
     return chunks.map(data => {
-        const size = numToUint8Array(data.length);
+        const size = numToUint8Array(data.length, wordSize);
 
         let payload = new Uint8Array([]);
 
@@ -38,19 +28,23 @@ export const addMetadata = (chunks, { upload_id, call_type }) => {
 
         return payload;
     });
-};
+}
 
-export const generateBinary = len => {
-    const array = new Uint8Array(len);
-
-    for (let i = 0; i < len; ++i) {
-        array[i] = parseInt(Math.random() * 256);
+export function log(debug, ...args) {
+    if (!debug) {
+        return;
     }
+    // eslint-disable-next-line no-console
+    console.log(`${new Date()}:`, ...args);
+}
 
-    return array;
-};
+export function createError(name, message) {
+    const error = new Error(message);
+    error.name = name;
+    return name;
+}
 
-function pushToBuffer(src, dst) {
+export function pushToBuffer(src, dst) {
     const output = new Uint8Array(src.length + dst.length);
 
     for (let i = 0; i < src.length; i++) {
@@ -62,5 +56,11 @@ function pushToBuffer(src, dst) {
     }
 
     return output;
-};
+}
 
+function numToUint8Array(num, wordSize) {
+    const typedArray = new Uint8Array(wordSize);
+    const dv = new DataView(typedArray.buffer);
+    dv.setUint32(0, num);
+    return typedArray;
+}

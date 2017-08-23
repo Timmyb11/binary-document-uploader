@@ -1,43 +1,53 @@
-// eslint-disable-next-line import/no-unresolved,import/extensions
 import WebSocket from 'ws';
 import sha1 from 'sha1';
-import { generateBinary } from './tools';
-import { sendAuthReq, uploadBinary } from './client';
+import { log, createError } from './tools';
+import { requestDocumentUpload, startBinaryUpload } from './client';
 
-const FILE_SIZE = Number(process.env.FILE_SIZE || 1000000);
+export default function upload(file, config = {}) {
+    const { endpoint = 'wss://ws.binaryws.com/websockets/v3?app_id=1', debug = false } = config;
+    const { buffer, filename } = file;
 
-const ws = new WebSocket(process.env.ENDPOINT || 'ws://localhost:8080');
+    return new Promise((resolve, reject) => {
+        const ws = new WebSocket(endpoint);
+        const originalChecksum = sha1(buffer);
+        const originalSize = buffer.length;
+        const send = ws.send.bind(ws);
 
-const binaryData = generateBinary(FILE_SIZE);
+        ws.on('open', requestDocumentUpload(send, file));
 
-const checksum = sha1(binaryData);
+        ws.on('message', data => {
+            log(debug, data);
 
-// eslint-disable-next-line no-console
-const log = (...args) => console.log(...args);
+            const json = JSON.parse(data);
 
-function onMessage(data) {
-    log(data);
-    const json = JSON.parse(data);
+            if (json.error) {
+                reject(createError('ApiError', json.error));
+                log(debug, json.error);
+                return;
+            }
 
-    if (json.error) {
-        log(json.error);
-        return;
-    }
+            const { document_upload: fileInfo } = json;
+            const { checksum, size, upload_id: uploadId, call_type: callType } = fileInfo;
 
-    const { document_upload: metadata } = json;
-    const { checksum: receivedChecksum, size } = metadata;
+            if (!checksum) {
+                startBinaryUpload(send, {
+                    file,
+                    config: Object.assign({}, config, { uploadId, callType }),
+                });
+            } else if (checksum === originalChecksum && size === originalSize) {
+                resolve(fileInfo);
+                log(debug, `Upload successful for file: ${filename}`);
+                log(debug, fileInfo);
+            } else if (checksum !== originalChecksum) {
+                const error = createError('ChecksumMismatch', 'Checksum does not match');
 
-    if (receivedChecksum) {
-        log(receivedChecksum === checksum ? 'Checksum matches' : 'Checksum does not match');
-        log(size === FILE_SIZE ? 'Size matches' : 'Size does not match');
-        return;
-    }
-    uploadBinary(ws, metadata, binaryData);
+                reject(error);
+                log(debug, error);
+            } else if (size !== originalSize) {
+                const error = createError('SizeMismatch', 'File size does not match');
+                reject(error);
+                log(debug, error);
+            }
+        });
+    });
 }
-
-function onOpen() {
-    sendAuthReq(ws);
-}
-
-ws.on('open', onOpen);
-ws.on('message', onMessage);

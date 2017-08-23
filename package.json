@@ -9,6 +9,18 @@
     "prepublishOnly": "npm run build",
     "precommit": "lint-staged"
   },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "browsers": ["> 1%"]
+          }
+        }
+      ]
+    ]
+  },
   "lint-staged": {
     "*.js": [
       "prettier-eslint --write",
@@ -18,6 +30,7 @@
   "author": "Amin Marashi <marashisamin at gmail>",
   "license": "ISC",
   "devDependencies": {
+    "babel-jest": "^20.0.3",
     "babel-loader": "^7.1.2",
     "babel-minify-webpack-plugin": "^0.2.0",
     "babel-preset-env": "^1.6.0",
@@ -31,6 +44,7 @@
     "lint-staged": "^4.0.3",
     "prettier-eslint-cli": "^4.2.1",
     "sha1": "^1.1.1",
-    "webpack": "^3.5.5"
+    "webpack": "^3.5.5",
+    "ws": "^3.1.0"
   }
 }
