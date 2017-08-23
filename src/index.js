@@ -3,19 +3,31 @@ import sha1 from 'sha1';
 import { log, createError } from './tools';
 import { requestDocumentUpload, startBinaryUpload } from './client';
 
-export default function upload(file, config = {}) {
-    const { endpoint = 'wss://ws.binaryws.com/websockets/v3?app_id=1', debug = false } = config;
+export default function upload(fileOptions, config = {}) {
+    // Unify input buffer
+    const file = Object.assign({}, fileOptions, { buffer: new Uint8Array(fileOptions.buffer) });
+
     const { buffer, filename } = file;
+    const {
+        endpoint = 'wss://ws.binaryws.com/websockets/v3?app_id=1',
+        debug = false,
+        connection = new WebSocket(endpoint),
+    } = config;
+
+    const originalChecksum = sha1(Array.from(buffer));
+    const originalSize = buffer.length;
+    const send = connection.send.bind(connection);
+
+    const requestUpload = requestDocumentUpload(send, file);
 
     return new Promise((resolve, reject) => {
-        const ws = new WebSocket(endpoint);
-        const originalChecksum = sha1(buffer);
-        const originalSize = buffer.length;
-        const send = ws.send.bind(ws);
+        if (connection.readyState === 1) {
+            requestUpload();
+        } else {
+            connection.on('open', requestUpload);
+        }
 
-        ws.on('open', requestDocumentUpload(send, file));
-
-        ws.on('message', data => {
+        connection.on('message', data => {
             log(debug, data);
 
             const json = JSON.parse(data);

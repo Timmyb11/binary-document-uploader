@@ -4,7 +4,7 @@
   "description": "Upload files to binary.com platform",
   "main": "stream.js",
   "scripts": {
-    "test": "eslint src && jest",
+    "test": "eslint src && jest --forceExit",
     "build": "webpack",
     "prepublishOnly": "npm run build",
     "precommit": "lint-staged"

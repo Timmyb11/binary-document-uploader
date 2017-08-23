@@ -10,7 +10,7 @@ export const requestDocumentUpload = (
     {
         documentType: document_type,
         documentFormat: document_format,
-        documnetId: document_id,
+        documentId: document_id,
         expirationDate: expiration_date,
     }
 ) => () =>

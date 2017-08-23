@@ -31,7 +31,7 @@ function onBinary(ws, bytes) {
                 document_upload: {
                     status   : 'success',
                     size     : received.length,
-                    checksum : sha1(received),
+                    checksum : sha1(Array.from(received)),
                     upload_id: uploadId,
                     call_type: callType,
                 },

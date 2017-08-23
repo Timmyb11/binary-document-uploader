@@ -38,10 +38,10 @@ export function log(debug, ...args) {
     console.log(`${new Date()}:`, ...args);
 }
 
-export function createError(name, message) {
-    const error = new Error(message);
-    error.name = name;
-    return name;
+export function createError(code, error) {
+    const newError = new Error(error.message || error);
+    newError.name = error.code || code;
+    return newError;
 }
 
 export function pushToBuffer(src, dst) {
