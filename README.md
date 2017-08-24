@@ -9,12 +9,26 @@ npm install binary-websocket-upload
 
 # Usage
 
+### ES6
+
+```
+import upload from 'binary-websocket-upload';
+```
+
+### RequireJS
+
+```
+const upload = require('binary-websocket-upload');
+```
+
+# Example
+
 ```
 import upload from 'binary-websocket-upload';
 
 upload(file, config)
-	.then(() => console.log('Upload successful!'))
-	.catch(e => console.log(error));
+    .then(result => console.log(`Status: ${result.status}`))
+    .catch(error => console.log(error));
 ```
 
 # file (object)
