@@ -1,11 +1,13 @@
-const path = require('path');
 const MinifyPlugin = require('babel-minify-webpack-plugin');
 
 module.exports = {
     entry : './src',
     output: {
-        path    : path.resolve(__dirname, 'dist'),
-        filename: 'index.js',
+        library      : 'documentUploader',
+        libraryTarget: 'umd',
+        libraryExport: 'default',
+        path         : __dirname,
+        filename     : 'documentUploader.js',
     },
     module: {
         rules: [

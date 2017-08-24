@@ -21,6 +21,15 @@ import upload from 'binary-document-uploader';
 const upload = require('binary-document-uploader');
 ```
 
+### Browser
+
+```
+<script src="./documentUploader.js"></script>
+<script>
+    documentUploader(options, config);
+</script>
+```
+
 # Example
 
 ```
