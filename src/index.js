@@ -1,34 +1,32 @@
-import WebSocket from 'ws';
 import sha1 from 'sha1';
 import { log, createError } from './tools';
 import { requestDocumentUpload, startBinaryUpload } from './client';
 
-export default function upload(fileOptions, config = {}) {
-    // Unify input buffer
-    const file = Object.assign({}, fileOptions, { buffer: new Uint8Array(fileOptions.buffer) });
+export default function upload(options, config = {}) {
+    checkOptions(options);
 
-    const { buffer, filename } = file;
-    const {
-        endpoint = 'wss://ws.binaryws.com/websockets/v3?app_id=1',
-        debug = false,
-        connection = new WebSocket(endpoint),
-    } = config;
-
+    const { debug = false } = config;
+    const { connection } = options;
+    const file = getFileOptions(options);
+    const { buffer } = file;
     const originalChecksum = sha1(Array.from(buffer));
     const originalSize = buffer.length;
-    const send = connection.send.bind(connection);
-
+    const send = payload => {
+        log(debug, '<Sent>:', payload);
+        connection.send(payload);
+    };
     const requestUpload = requestDocumentUpload(send, file);
 
     return new Promise((resolve, reject) => {
         if (connection.readyState === 1) {
+            log(debug, 'Uploading started, File options:', file);
             requestUpload();
         } else {
-            connection.on('open', requestUpload);
+            throw Error('Connection is not ready!');
         }
 
         connection.on('message', data => {
-            log(debug, data);
+            log(debug, '<Received>:', data);
 
             const json = JSON.parse(data);
 
@@ -38,8 +36,8 @@ export default function upload(fileOptions, config = {}) {
                 return;
             }
 
-            const { document_upload: fileInfo } = json;
-            const { checksum, size, upload_id: uploadId, call_type: callType } = fileInfo;
+            const { document_upload: uploadInfo } = json;
+            const { checksum, size, upload_id: uploadId, call_type: callType } = uploadInfo;
 
             if (!checksum) {
                 startBinaryUpload(send, {
@@ -47,12 +45,10 @@ export default function upload(fileOptions, config = {}) {
                     config: Object.assign({}, config, { uploadId, callType }),
                 });
             } else if (checksum === originalChecksum && size === originalSize) {
-                resolve(fileInfo);
-                log(debug, `Upload successful for file: ${filename}`);
-                log(debug, fileInfo);
+                resolve(uploadInfo);
+                log(debug, 'Upload successful, upload info:', uploadInfo);
             } else if (checksum !== originalChecksum) {
                 const error = createError('ChecksumMismatch', 'Checksum does not match');
-
                 reject(error);
                 log(debug, error);
             } else if (size !== originalSize) {
@@ -61,5 +57,25 @@ export default function upload(fileOptions, config = {}) {
                 log(debug, error);
             }
         });
+    });
+}
+
+function getFileOptions(options) {
+    const file = Object.assign({}, options, { connection: undefined });
+
+    file.buffer = new Uint8Array(options.buffer);
+
+    return file;
+}
+
+function checkOptions(options) {
+    if (!options) {
+        throw Error('Options is required');
+    }
+    const requiredOpts = ['connection', 'filename', 'buffer', 'documentType', 'documentId', 'documentFormat', 'expirationDate'];
+    requiredOpts.forEach(opt => {
+        if(!(opt in options)) {
+            throw Error(`Required option <${opt}> is not found in the given options`)
+        }
     });
 }

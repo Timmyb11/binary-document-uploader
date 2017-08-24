@@ -1,6 +1,6 @@
 {
   "name": "binary-document-uploader",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Upload files to binary.com platform",
   "main": "dist/index.js",
   "scripts": {

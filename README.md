@@ -26,48 +26,44 @@ const upload = require('binary-document-uploader');
 ```
 import upload from 'binary-document-uploader';
 
-upload(file, config)
+upload(options, config)
     .then(result => console.log(`Status: ${result.status}`))
     .catch(error => console.log(error));
 ```
 
-# file (object)
+# options (object)
 
 File information and payload to send
 
-## `file.filename`
+## `options.connection`
+
+A **ready** websocket connection
+
+## `options.filename`
 
 Filename
 
-## `file.buffer`
+## `options.buffer`
 
 Array buffer containing the file to upload
 
-## `file.documentType`
+## `options.documentType`
 
 Document type
 
-## `file.documentId`
+## `options.documentId`
 
 Document id
 
-## `file.documentFormat`
+## `options.documentFormat`
 
 Document format
 
-## `file.expirationDate`
+## `options.expirationDate`
 
 Expiration date
 
 # config (optional)
-
-## `config.endpoint`
-
-Default: `'wss://ws.binaryws.com/websockets/v3?app_id=1'`
-
-## `config.connection`
-
-Default: instance of WebSocket with `'wss://ws.binaryws.com/websockets/v3?app_id=1'`
 
 ## `config.chunkSize`
 
@@ -76,3 +72,7 @@ Default: `16384` (16 KB)
 ## `config.wordSize`
 
 Default: `4`
+
+## `config.debug`
+
+Default: `false`
