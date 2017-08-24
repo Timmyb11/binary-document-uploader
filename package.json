@@ -1,5 +1,5 @@
 {
-  "name": "binary-websocket-upload",
+  "name": "binary-document-uploader",
   "version": "1.0.0",
   "description": "Upload files to binary.com platform",
   "main": "stream.js",

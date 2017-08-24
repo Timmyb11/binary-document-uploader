@@ -1,10 +1,10 @@
-# binary-websocket-upload
+# binary-document-uploader
 Uploading files through websocket to binary.com platform
 
 # Installation
 
 ```
-npm install binary-websocket-upload
+npm install binary-document-uploader
 ```
 
 # Usage
@@ -12,19 +12,19 @@ npm install binary-websocket-upload
 ### ES6
 
 ```
-import upload from 'binary-websocket-upload';
+import upload from 'binary-document-uploader';
 ```
 
 ### RequireJS
 
 ```
-const upload = require('binary-websocket-upload');
+const upload = require('binary-document-uploader');
 ```
 
 # Example
 
 ```
-import upload from 'binary-websocket-upload';
+import upload from 'binary-document-uploader';
 
 upload(file, config)
     .then(result => console.log(`Status: ${result.status}`))
