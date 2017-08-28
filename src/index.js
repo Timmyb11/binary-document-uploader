@@ -1,3 +1,4 @@
+import 'babel-polyfill'; // eslint-disable-line import/extensions,import/no-unresolved
 import sha1 from 'sha1';
 import { log, createError } from './tools';
 import { requestDocumentUpload, startBinaryUpload } from './client';
