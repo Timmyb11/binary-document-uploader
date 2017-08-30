@@ -73,7 +73,7 @@ function checkOptions(options) {
     if (!options) {
         throw Error('Options is required');
     }
-    const requiredOpts = ['connection', 'filename', 'buffer', 'documentType', 'documentId', 'documentFormat', 'expirationDate'];
+    const requiredOpts = ['connection', 'filename', 'buffer', 'documentType', 'documentFormat'];
     requiredOpts.forEach(opt => {
         if(!(opt in options)) {
             throw Error(`Required option <${opt}> is not found in the given options`)
