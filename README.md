@@ -60,7 +60,7 @@ Array buffer containing the file to upload
 
 Document type
 
-## `options.documentId`
+## `options.documentId` (optional)
 
 Document id
 
@@ -68,7 +68,7 @@ Document id
 
 Document format
 
-## `options.expirationDate`
+## `options.expirationDate` (optional)
 
 Expiration date
 
