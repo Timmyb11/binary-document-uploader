@@ -1,3 +1,5 @@
+const WORD_SIZE = 4;
+
 export const generateChunks = (binary, { chunkSize = 16384 /* 16KB */ }) =>
     Array.from(binary)
         .reduce((acc, item, i) => {
@@ -12,12 +14,12 @@ export const generateChunks = (binary, { chunkSize = 16384 /* 16KB */ }) =>
         .map(b => new Uint8Array(b))
         .concat(new Uint8Array([]));
 
-export function addMetadata(chunks, { uploadId, callType, wordSize = 4 }) {
-    const id = numToUint8Array(uploadId, wordSize);
-    const type = numToUint8Array(callType, wordSize);
+export function addMetadata(chunks, { uploadId, callType }) {
+    const id = numToUint8Array(uploadId);
+    const type = numToUint8Array(callType);
 
     return chunks.map(data => {
-        const size = numToUint8Array(data.length, wordSize);
+        const size = numToUint8Array(data.length);
 
         let payload = new Uint8Array([]);
 
@@ -58,8 +60,8 @@ export function pushToBuffer(src, dst) {
     return output;
 }
 
-function numToUint8Array(num, wordSize) {
-    const typedArray = new Uint8Array(wordSize);
+function numToUint8Array(num) {
+    const typedArray = new Uint8Array(WORD_SIZE);
     const dv = new DataView(typedArray.buffer);
     dv.setUint32(0, num);
     return typedArray;

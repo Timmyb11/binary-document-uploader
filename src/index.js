@@ -26,13 +26,19 @@ export default function upload(options, config = {}) {
             throw Error('Connection is not ready!');
         }
 
-        connection.on('message', data => {
+        const originalOnMessage = connection.onmessage;
+
+        connection.onmessage = ({ data }) => {
+            if (originalOnMessage) {
+                originalOnMessage.call(connection, data);
+            }
             log(debug, '<Received>:', data);
 
             const json = JSON.parse(data);
 
             if (json.error) {
                 reject(createError('ApiError', json.error));
+                connection.onmessage = originalOnMessage;
                 log(debug, json.error);
                 return;
             }
@@ -45,19 +51,22 @@ export default function upload(options, config = {}) {
                     file,
                     config: Object.assign({}, config, { uploadId, callType }),
                 });
-            } else if (checksum === originalChecksum && size === originalSize) {
+                return;
+            }
+            if (checksum === originalChecksum && size === originalSize) {
                 resolve(uploadInfo);
                 log(debug, 'Upload successful, upload info:', uploadInfo);
             } else if (checksum !== originalChecksum) {
                 const error = createError('ChecksumMismatch', 'Checksum does not match');
                 reject(error);
                 log(debug, error);
-            } else if (size !== originalSize) {
+            } else {
                 const error = createError('SizeMismatch', 'File size does not match');
                 reject(error);
                 log(debug, error);
             }
-        });
+            connection.onmessage = originalOnMessage;
+        };
     });
 }
 
@@ -75,8 +84,8 @@ function checkOptions(options) {
     }
     const requiredOpts = ['connection', 'filename', 'buffer', 'documentType', 'documentFormat'];
     requiredOpts.forEach(opt => {
-        if(!(opt in options)) {
-            throw Error(`Required option <${opt}> is not found in the given options`)
+        if (!(opt in options)) {
+            throw Error(`Required option <${opt}> is not found in the given options`);
         }
     });
 }

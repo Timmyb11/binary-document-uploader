@@ -2,7 +2,9 @@ import WebSocket from 'ws';
 import startServer from './server';
 import upload from '../';
 
+const onMessage = jest.fn();
 const connection = new WebSocket('ws://localhost:8080/');
+connection.onmessage = onMessage;
 const onOpen = new Promise(r => connection.on('open', r));
 
 describe('Uploading file', () => {
@@ -22,12 +24,12 @@ describe('Uploading file', () => {
                 documentFormat: 'JPEG',
             },
             {
-                debug: true,
-                wordSize: 4,
+                debug    : true,
                 chunkSize: 2,
             }
         );
 
         expect(status).toEqual('success');
+        expect(onMessage.mock.calls.length).toBe(2);
     });
 });
