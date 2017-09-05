@@ -1,6 +1,6 @@
 import 'babel-polyfill'; // eslint-disable-line import/extensions,import/no-unresolved
 import sha1 from 'sha1';
-import { log, createError } from './tools';
+import { log, createError, MAX_SIZE, HUMAN_READABLE_MAX_SIZE } from './tools';
 import { requestDocumentUpload, startBinaryUpload } from './client';
 
 export default function upload(options, config = {}) {
@@ -85,7 +85,11 @@ function checkOptions(options) {
     const requiredOpts = ['connection', 'filename', 'buffer', 'documentType', 'documentFormat'];
     requiredOpts.forEach(opt => {
         if (!(opt in options)) {
-            throw Error(`Required option <${opt}> is not found in the given options`);
+            throw createError('InvocationError', `Required option <${opt}> is not found in the given options`);
         }
     });
+
+    if (options.buffer.length > MAX_SIZE) {
+        throw createError('FileSizeError', `The maximum acceptable file size is ${HUMAN_READABLE_MAX_SIZE}`);
+    }
 }
