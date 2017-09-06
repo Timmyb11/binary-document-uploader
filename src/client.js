@@ -19,7 +19,7 @@ export const requestDocumentUpload = (
             document_upload: 1,
             req_id         : ++reqId,
             document_type,
-            document_format,
+            document_format: document_format.toUpperCase(),
             expiration_date,
             document_id,
         })
