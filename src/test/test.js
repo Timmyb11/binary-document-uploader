@@ -1,35 +1,62 @@
 import WebSocket from 'ws';
 import startServer from './server';
-import upload from '../';
+import DocumentUploader from '../';
 
-const onMessage = jest.fn();
-const connection = new WebSocket('ws://localhost:8080/');
-connection.onmessage = onMessage;
-const onOpen = new Promise(r => connection.on('open', r));
-
-describe('Uploading file', () => {
-    it('Files should be uploaded succcessfully', async () => {
+describe('DocumentUploader', () => {
+    let uploader;
+    const onMessage = jest.fn();
+    beforeAll(async () => {
         startServer();
+        const connection = new WebSocket('ws://localhost:8080/');
+        connection.onmessage = onMessage;
+        await new Promise(r => connection.on('open', r));
 
-        await onOpen;
+        uploader = new DocumentUploader({
+            connection,
+            debug: true,
+        });
+    });
 
-        const { status } = await upload(
-            {
-                connection,
+    describe('Upload a file', () => {
+        it('Files should be uploaded succcessfully', async () => {
+            const { status } = await uploader.upload({
                 filename      : 'test-file.jpg',
                 buffer        : new Uint8Array([1, 2, 3, 4]),
                 documentType  : 'passport',
                 expirationDate: '2020-01-01',
                 documentId    : '1234567',
                 documentFormat: 'JPEG',
-            },
-            {
-                debug    : true,
-                chunkSize: 2,
-            }
-        );
+                chunkSize     : 2,
+            });
 
-        expect(status).toEqual('success');
-        expect(onMessage.mock.calls.length).toBe(2);
+            expect(status).toEqual('success');
+            expect(onMessage.mock.calls.length).toBe(0);
+        });
+    });
+
+    describe('Upload two files', () => {
+        it('Files should be uploaded succcessfully', async () => {
+            const upload1 = uploader.upload({
+                filename      : 'test-file.jpg',
+                buffer        : new Uint8Array([1, 2, 3, 4]),
+                documentType  : 'passport',
+                expirationDate: '2020-01-01',
+                documentId    : '1234567',
+                documentFormat: 'JPEG',
+            });
+
+            const upload2 = uploader.upload({
+                filename      : 'test-file.jpg',
+                buffer        : new Uint8Array([1, 2, 3, 4]),
+                documentType  : 'passport',
+                expirationDate: '2022-01-01',
+                documentId    : '1234567',
+                documentFormat: 'JPEG',
+            });
+
+            expect((await upload1).status).toEqual('success');
+            expect((await upload2).status).toEqual('success');
+            expect(onMessage.mock.calls.length).toBe(0);
+        });
     });
 });

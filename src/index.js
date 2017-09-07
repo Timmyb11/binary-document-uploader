@@ -1,95 +1,79 @@
 import 'babel-polyfill'; // eslint-disable-line import/extensions,import/no-unresolved
-import sha1 from 'sha1';
-import { log, createError, MAX_SIZE, HUMAN_READABLE_MAX_SIZE } from './tools';
-import { requestDocumentUpload, startBinaryUpload } from './client';
+import { log, checkOptions, getFile, createError } from './tools';
+import Client from './client';
 
-export default function upload(options, config = {}) {
-    checkOptions(options);
+let reqId = 0;
 
-    const { debug = false } = config;
-    const { connection } = options;
-    const file = getFileOptions(options);
-    const { buffer } = file;
-    const originalChecksum = sha1(Array.from(buffer));
-    const originalSize = buffer.length;
-    const send = payload => {
-        log(debug, '<Sent>:', payload);
-        connection.send(payload);
-    };
-    const requestUpload = requestDocumentUpload(send, file);
+export default class DocumentUploader {
+    constructor(config) {
+        this.config = config;
+        this.clients = {};
+        this.wrapConnection();
+    }
+    upload(fileOptions) {
+        const { debug = false } = this.config;
 
-    return new Promise((resolve, reject) => {
-        if (connection.readyState === 1) {
+        checkOptions(fileOptions);
+
+        const file = getFile(fileOptions);
+
+        reqId += 1;
+        const client = new Client({ send: this.send, file, reqId });
+
+        this.clients[reqId] = { client };
+
+        return new Promise((resolve, reject) => {
+            this.clients[reqId].promise = { resolve, reject };
             log(debug, 'Uploading started, File options:', file);
-            requestUpload();
-        } else {
-            throw Error('Connection is not ready!');
+            client.requestUpload();
+        });
+    }
+    wrapConnection() {
+        const { connection, debug = false } = this.config;
+
+        if (!connection || connection.readyState !== 1) {
+            throw createError('ConnectionError', 'Connection is not ready!');
         }
+
+        this.connection = connection;
+
+        this.send = payload => {
+            log(debug, '<Sent>:', payload);
+            connection.send(payload);
+        };
 
         const originalOnMessage = connection.onmessage;
 
-        connection.onmessage = ({ data }) => {
-            if (originalOnMessage) {
-                originalOnMessage.call(connection, data);
-            }
+        connection.onmessage = response => {
+            const { data } = response;
+
             log(debug, '<Received>:', data);
 
             const json = JSON.parse(data);
+            const { passthrough: { document_upload: isDocumentUpload } } = json;
 
-            if (json.error) {
-                reject(createError('ApiError', json.error));
-                connection.onmessage = originalOnMessage;
-                log(debug, json.error);
+            if (originalOnMessage && !isDocumentUpload) {
+                originalOnMessage.call(connection, response);
                 return;
             }
 
-            const { document_upload: uploadInfo } = json;
-            const { checksum, size, upload_id: uploadId, call_type: callType } = uploadInfo;
-
-            if (!checksum) {
-                startBinaryUpload(send, {
-                    file,
-                    config: Object.assign({}, config, { uploadId, callType }),
-                });
+            if (!(json.req_id in this.clients)) {
                 return;
             }
-            if (checksum === originalChecksum && size === originalSize) {
-                resolve(uploadInfo);
-                log(debug, 'Upload successful, upload info:', uploadInfo);
-            } else if (checksum !== originalChecksum) {
-                const error = createError('ChecksumMismatch', 'Checksum does not match');
-                reject(error);
-                log(debug, error);
-            } else {
-                const error = createError('SizeMismatch', 'File size does not match');
-                reject(error);
-                log(debug, error);
+
+            const { client, promise } = this.clients[json.req_id];
+
+            try {
+                const result = client.handleMessage(json);
+
+                if (result) {
+                    log(debug, 'Upload successful, upload info:', result);
+                    promise.resolve(result);
+                }
+            } catch (e) {
+                promise.reject(e);
+                log(debug, e);
             }
-            connection.onmessage = originalOnMessage;
         };
-    });
-}
-
-function getFileOptions(options) {
-    const file = Object.assign({}, options, { connection: undefined });
-
-    file.buffer = new Uint8Array(options.buffer);
-
-    return file;
-}
-
-function checkOptions(options) {
-    if (!options) {
-        throw Error('Options is required');
-    }
-    const requiredOpts = ['connection', 'filename', 'buffer', 'documentType', 'documentFormat'];
-    requiredOpts.forEach(opt => {
-        if (!(opt in options)) {
-            throw createError('InvocationError', `Required option <${opt}> is not found in the given options`);
-        }
-    });
-
-    if (options.buffer.length > MAX_SIZE) {
-        throw createError('FileSizeError', `The maximum acceptable file size is ${HUMAN_READABLE_MAX_SIZE}`);
     }
 }

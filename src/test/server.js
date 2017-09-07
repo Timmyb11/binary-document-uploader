@@ -4,6 +4,8 @@ import stripMetadata from './stripMetadata';
 import { pushToBuffer } from '../tools';
 
 const CALL_TYPE = 1;
+let lastUploadId = 0;
+const stash = {};
 
 export default function startServer() {
     const wss = new WebSocket.Server({ port: 8080 });
@@ -20,18 +22,20 @@ export default function startServer() {
     });
 }
 
-let received = new Uint8Array([]);
-
 function onBinary(ws, bytes) {
     const { buffer, chunkSize, uploadId, callType } = stripMetadata(bytes);
+
+    const stashed = stash[uploadId];
 
     if (!chunkSize) {
         ws.send(
             JSON.stringify({
+                req_id         : stashed.req_id,
+                passthrough    : stashed.passthrough,
                 document_upload: {
                     status   : 'success',
-                    size     : received.length,
-                    checksum : sha1(Array.from(received)),
+                    size     : stashed.received_bytes.length,
+                    checksum : sha1(Array.from(stashed.received_bytes)),
                     upload_id: uploadId,
                     call_type: callType,
                 },
@@ -40,19 +44,18 @@ function onBinary(ws, bytes) {
         return;
     }
 
-    received = pushToBuffer(received, buffer);
+    stashed.received_bytes = pushToBuffer(stashed.received_bytes, buffer);
 }
 
-let uploadId = 0;
-const stash = {};
-
 function onJson(ws, json) {
-    stash[++uploadId] = json;
+    stash[++lastUploadId] = Object.assign({}, json, { received_bytes: new Uint8Array([]) });
 
     ws.send(
         JSON.stringify({
+            req_id         : json.req_id,
+            passthrough    : json.passthrough,
             document_upload: {
-                upload_id: uploadId,
+                upload_id: lastUploadId,
                 call_type: CALL_TYPE,
             },
         })

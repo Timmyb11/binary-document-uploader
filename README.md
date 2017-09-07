@@ -12,13 +12,17 @@ npm install binary-document-uploader
 ### ES6
 
 ```
-import upload from 'binary-document-uploader';
+import DocumentUploader from 'binary-document-uploader';
+
+const uploader = new DocumentUploader(config);
 ```
 
 ### RequireJS
 
 ```
-const upload = require('binary-document-uploader');
+const DocumentUploader = require('binary-document-uploader');
+
+const uploader = new DocumentUploader(config);
 ```
 
 ### Browser
@@ -26,61 +30,60 @@ const upload = require('binary-document-uploader');
 ```
 <script src="./documentUploader.js"></script>
 <script>
-    documentUploader(options, config);
+    const uploader = new DocumentUploader(config);
+    uploader(file);
 </script>
 ```
 
 # Example
 
 ```
-import upload from 'binary-document-uploader';
+import DocumentUploader from 'binary-document-uploader';
 
-upload(options, config)
+const uploader = new DocumentUploader(config);
+
+uploader.upload(file)
     .then(result => console.log(`Status: ${result.status}`))
     .catch(error => console.log(error));
 ```
 
-# options (object)
+# file (object)
 
 File information and payload to send
 
-## `options.connection`
-
-A **ready** websocket connection
-
-## `options.filename`
+## `file.filename`
 
 Filename
 
-## `options.buffer`
+## `file.buffer`
 
 Array buffer containing the file to upload
 
-## `options.documentType`
+## `file.documentType`
 
 Document type
 
-## `options.documentId` (optional)
+## `file.documentId` (optional)
 
 Document id
 
-## `options.documentFormat`
+## `file.documentFormat`
 
 Document format
 
-## `options.expirationDate` (optional)
+## `file.expirationDate` (optional)
 
 Expiration date
 
-# config (optional)
-
-## `config.chunkSize`
+## `file.chunkSize`
 
 Default: `16384` (16 KB)
 
-## `config.wordSize`
+# config (object)
 
-Default: `4`
+## `config.connection`
+
+A **ready** websocket connection
 
 ## `config.debug`
 

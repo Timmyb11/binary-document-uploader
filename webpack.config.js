@@ -3,11 +3,11 @@ const MinifyPlugin = require('babel-minify-webpack-plugin');
 module.exports = {
     entry : './src',
     output: {
-        library      : 'documentUploader',
+        library      : 'DocumentUploader',
         libraryTarget: 'umd',
         libraryExport: 'default',
         path         : __dirname,
-        filename     : 'documentUploader.js',
+        filename     : 'DocumentUploader.js',
     },
     module: {
         rules: [

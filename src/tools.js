@@ -44,7 +44,7 @@ export function log(debug, ...args) {
 }
 
 export function createError(code, error) {
-    const newError = new Error(error.message || error);
+    const newError = new Error(error.message || error.message_to_client || error);
     newError.name = error.code || code;
     return newError;
 }
@@ -63,9 +63,34 @@ export function pushToBuffer(src, dst) {
     return output;
 }
 
+export function getFile(options) {
+    const file = Object.assign({}, options);
+
+    file.buffer = new Uint8Array(options.buffer);
+
+    return file;
+}
+
+export function checkOptions(options) {
+    if (!options) {
+        throw Error('Options is required');
+    }
+    const requiredOpts = ['filename', 'buffer', 'documentType', 'documentFormat'];
+    requiredOpts.forEach(opt => {
+        if (!(opt in options)) {
+            throw createError('InvocationError', `Required option <${opt}> is not found in the given options`);
+        }
+    });
+
+    if (options.buffer.length > MAX_SIZE) {
+        throw createError('FileSizeError', `The maximum acceptable file size is ${HUMAN_READABLE_MAX_SIZE}`);
+    }
+}
+
 function numToUint8Array(num) {
     const typedArray = new Uint8Array(WORD_SIZE);
     const dv = new DataView(typedArray.buffer);
     dv.setUint32(0, num);
     return typedArray;
 }
+
