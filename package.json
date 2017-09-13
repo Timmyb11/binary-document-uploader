@@ -1,6 +1,6 @@
 {
   "name": "binary-document-uploader",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Upload files to binary.com platform",
   "main": "DocumentUploader.js",
   "scripts": {
@@ -15,12 +15,15 @@
         "env",
         {
           "targets": {
-            "browsers": ["> 1%"]
+            "browsers": [
+              "> 1%"
+            ]
           },
           "useBuiltIns": true
         }
       ]
-    ]
+    ],
+    "plugins": ["babel-plugin-loop-optimizer"]
   },
   "lint-staged": {
     "*.js": [
@@ -34,6 +37,7 @@
     "babel-jest": "^20.0.3",
     "babel-loader": "^7.1.2",
     "babel-minify-webpack-plugin": "^0.2.0",
+    "babel-plugin-loop-optimizer": "^1.4.1",
     "babel-preset-env": "^1.6.0",
     "base64-js": "^1.2.1",
     "eslint": "^4.5.0",

@@ -3,19 +3,18 @@ const WORD_SIZE = 4;
 export const MAX_SIZE = 3 * 2 ** 20;
 export const HUMAN_READABLE_MAX_SIZE = '3 MB';
 
-export const generateChunks = (binary, { chunkSize = 16384 /* 16KB */ }) =>
-    Array.from(binary)
-        .reduce((acc, item, i) => {
-            const newAcc = [...acc];
-            if (i % chunkSize === 0) {
-                newAcc.push([item]);
-                return newAcc;
-            }
-            newAcc[newAcc.length - 1].push(item);
-            return newAcc;
-        }, [])
-        .map(b => new Uint8Array(b))
-        .concat(new Uint8Array([]));
+export const generateChunks = (binary, { chunkSize = 16384 /* 16KB */ }) => {
+    const chunks = [];
+    for (let i = 0; i < binary.length; i++) {
+        const item = binary[i];
+        if (i % chunkSize === 0) {
+            chunks.push([item]);
+        } else {
+            chunks[chunks.length - 1].push(item);
+        }
+    }
+    return chunks.map(b => new Uint8Array(b)).concat(new Uint8Array([]));
+};
 
 export function addMetadata(chunks, { uploadId, callType }) {
     const id = numToUint8Array(uploadId);
@@ -93,4 +92,3 @@ function numToUint8Array(num) {
     dv.setUint32(0, num);
     return typedArray;
 }
-
