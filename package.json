@@ -1,6 +1,6 @@
 {
   "name": "binary-document-uploader",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Upload files to binary.com platform",
   "main": "DocumentUploader.js",
   "scripts": {
@@ -23,7 +23,9 @@
         }
       ]
     ],
-    "plugins": ["babel-plugin-loop-optimizer"]
+    "plugins": [
+      "babel-plugin-loop-optimizer"
+    ]
   },
   "lint-staged": {
     "*.js": [
