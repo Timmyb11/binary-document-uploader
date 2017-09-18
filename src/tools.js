@@ -85,14 +85,7 @@ export function checkOptions(options) {
         throw createError('FileSizeError', `The maximum acceptable file size is ${HUMAN_READABLE_MAX_SIZE}`);
     }
 
-    if (options.documentType === 'passport') {
-        if (!options.documentId) {
-            throw createError('DocumentId', 'Document ID is required for passport scans');
-        }
-        if (!options.expirationDate) {
-            throw createError('ExpirationDate', 'Expiration Date is required for passport scans');
-        }
-    }
+    checkMandatoryFields(options);
 }
 
 function numToUint8Array(num) {
@@ -101,3 +94,25 @@ function numToUint8Array(num) {
     dv.setUint32(0, num);
     return typedArray;
 }
+
+function checkMandatoryFields(options) {
+    const proofOfIDDocs = ['passport', 'proofid', 'driverslicense'];
+
+    const type = options.documentType;
+
+    if (proofOfIDDocs.includes(type)) {
+        if (!options.documentId) {
+            throw createError('DocumentId', `Document ID is required for ${typeToNameMap[type]} scans`);
+        }
+        if (!options.expirationDate) {
+            throw createError('ExpirationDate', `Expiration Date is required for ${typeToNameMap[type]} scans`);
+        }
+    }
+}
+
+export const typeToNameMap = {
+    passport      : 'passport',
+    proofid       : 'identity card',
+    driverslicense: 'driver\'s license',
+};
+
