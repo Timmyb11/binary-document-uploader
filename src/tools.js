@@ -84,6 +84,15 @@ export function checkOptions(options) {
     if (options.buffer.length > MAX_SIZE) {
         throw createError('FileSizeError', `The maximum acceptable file size is ${HUMAN_READABLE_MAX_SIZE}`);
     }
+
+    if (options.documentType === 'passport') {
+        if (!options.documentId) {
+            throw createError('DocumentId', 'Document ID is required for passport scans');
+        }
+        if (!options.expirationDate) {
+            throw createError('ExpirationDate', 'Expiration Date is required for passport scans');
+        }
+    }
 }
 
 function numToUint8Array(num) {

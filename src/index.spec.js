@@ -31,3 +31,48 @@ describe('Max file size error', () => {
         );
     });
 });
+
+describe('Mandatory fields', () => {
+    it('should check the mandatory fields to be given', () => {
+        let error;
+
+        const uploader = new DocumentUploader({
+            connection: mockConnection,
+            debug     : true,
+        });
+
+        try {
+            uploader.upload({
+                filename      : 'test-file.jpg',
+                buffer        : new Uint8Array(Array(1)),
+                documentType  : 'passport',
+                expirationDate: '2020-01-01',
+                documentId    : '',
+                documentFormat: 'JPEG',
+            });
+        } catch (e) {
+            error = e;
+        }
+
+        expect(error).toEqual(
+            createError('DocumentId', 'Document ID is required for passport scans')
+        );
+
+        try {
+            uploader.upload({
+                filename      : 'test-file.jpg',
+                buffer        : new Uint8Array(Array(1)),
+                documentType  : 'passport',
+                expirationDate: '',
+                documentId    : '12312313',
+                documentFormat: 'JPEG',
+            });
+        } catch (e) {
+            error = e;
+        }
+
+        expect(error).toEqual(
+            createError('ExpirationDate', 'Expiration Date is required for passport scans')
+        );
+    });
+});
