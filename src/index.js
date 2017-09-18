@@ -13,9 +13,9 @@ export default class DocumentUploader {
     upload(fileOptions) {
         const { debug = false } = this.config;
 
-        checkOptions(fileOptions);
-
         const file = getFile(fileOptions);
+
+        checkOptions(file);
 
         reqId += 1;
         const client = new Client({ send: this.send, file, reqId });
